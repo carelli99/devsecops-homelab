@@ -7,10 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Upgrade core build tools to fix CVE-2026-23949 & CVE-2026-24049
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# Upgrade all pre-installed base build tools & libraries with findings
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel urllib3 msgpack
 
-# Install dependencies as root before switching users
+# Install application dependencies as root before switching users
 COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
