@@ -3,8 +3,8 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-# INTENTIONAL TEST SECRET FOR GITLEAKS GATE
-AWS_TEST_SECRET = "AKIAIOSFODNN7EXAMPLE"
+# INTENTIONAL HIGH-ENTROPY TEST KEY FOR GITLEAKS GATE
+AWS_TEST_SECRET = "AKIAZ5Q7X9M2P8R4T6W1"
 
 @app.route("/", methods=["GET"])
 def health_check():
