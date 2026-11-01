@@ -5,11 +5,12 @@ FROM python:3.11-alpine AS builder
 
 WORKDIR /app
 
-# Create clean virtual environment and install updated dependencies
+# Create isolated virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel urllib3 msgpack
+# Upgrade pip and install application requirements
+RUN pip install --no-cache-dir --upgrade pip
 COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -24,10 +25,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Purge unneeded legacy system site-packages from the base image
-RUN rm -rf /usr/local/lib/python3.11/site-packages/*
+# Completely wipe default base image system site-packages (pip/setuptools/wheel vendor clutter)
+RUN find /usr/local/lib/python3.11/site-packages -mindepth 1 -delete
 
-# Copy clean isolated virtual environment from builder stage
+# Copy only the clean isolated virtual environment from Stage 1
 COPY --from=builder /opt/venv /opt/venv
 
 # Copy application source code
