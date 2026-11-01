@@ -7,6 +7,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Upgrade core build tools to fix CVE-2026-23949 & CVE-2026-24049
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
 # Install dependencies as root before switching users
 COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -15,7 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ .
 
 # Enforce Non-Root User for Execution Safety
-# Alpine provides a default unprivileged group/user 'nobody'
 RUN chown -R nobody:nogroup /app
 USER nobody
 
