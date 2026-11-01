@@ -1,0 +1,56 @@
+name: DevSecOps Security Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  security-pipeline:
+    name: DevSecOps Automated Security Gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Gate 1: Secret Scanning
+      # Fails immediately if hardcoded tokens, API keys, or private credentials exist.
+      - name: Gitleaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Gate 2: Static Application Security Testing (SAST)
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Bandit scans application code.
+      # Flags: -ll (Medium/High severity), -ii (Medium/High confidence) return exit code 1 on findings.
+      - name: Run Bandit (SAST)
+        run: |
+          pip install bandit
+          bandit -r app/ -ll -ii -f txt
+
+      # Gate 3: Docker Build
+      # Only reached if Gitleaks and Bandit pass without critical findings.
+      - name: Build Local Docker Image
+        run: |
+          docker build -t devsecops-homelab:${{ github.sha }} .
+
+      # Gate 4: Container & Base Image Vulnerability Scanning
+      # exit-code: '1' forces the job to fail on any CRITICAL or HIGH vulnerabilities.
+      - name: Trivy Container Vulnerability Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'devsecops-homelab:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
