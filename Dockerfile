@@ -5,14 +5,24 @@ FROM python:3.11-alpine AS builder
 
 WORKDIR /app
 
-# Create isolated virtual environment
-RUN python -m venv /opt/venv
+# 1. Create a bare virtualenv without legacy seeded setuptools/pip
+RUN python -m venv --without-pip /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Upgrade pip and install application requirements
-RUN pip install --no-cache-dir --upgrade pip
+# 2. Fetch latest standalone pip directly
+RUN wget -q https://bootstrap.pypa.io/get-pip.py -O get-pip.py && \
+    python get-pip.py --no-cache-dir && \
+    rm get-pip.py
+
+# 3. Install application requirements
 COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# 4. Strip build-only utilities (setuptools, wheel, pip) from runtime environment
+RUN pip uninstall -y setuptools wheel pip || true && \
+    find /opt/venv -type d -name "setuptools*" -exec rm -rf {} + && \
+    find /opt/venv -type d -name "wheel*" -exec rm -rf {} + && \
+    find /opt/venv -type d -name "pip*" -exec rm -rf {} +
 
 # =========================================================
 # Stage 2: Minimal Production Runtime
@@ -25,13 +35,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Completely wipe default base image system site-packages (pip/setuptools/wheel vendor clutter)
-RUN find /usr/local/lib/python3.11/site-packages -mindepth 1 -delete
+# Wipe default base image system site-packages
+RUN rm -rf /usr/local/lib/python3.11/site-packages/*
 
-# Copy only the clean isolated virtual environment from Stage 1
+# Copy only the hardened, production-only virtual environment
 COPY --from=builder /opt/venv /opt/venv
 
-# Copy application source code
+# Copy application code
 COPY app/ .
 
 # Enforce Non-Root User Execution
