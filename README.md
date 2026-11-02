@@ -1,6 +1,6 @@
 # DevSecOps Flask Microservice & Automated Security Pipeline
 
-A production-grade, containerized Flask microservice featuring an automated **DevSecOps CI/CD security pipeline** with strict shift-left security gates, multi-stage Docker hardening, and zero-vulnerability compliance.
+A containerized Flask microservice featuring an automated **DevSecOps CI/CD security pipeline** with strict shift-left security gates, multi-stage Docker hardening, and zero-vulnerability compliance.
 
 ---
 
@@ -8,7 +8,7 @@ A production-grade, containerized Flask microservice featuring an automated **De
 
 * **Application Stack:** Python 3.11, Flask, Werkzeug.
 * **Container Hardening:** 
-  * **Multi-Stage Build:** Isolates application dependencies in a virtual environment (`/opt/venv`) and completely strips build tools (`pip`, `setuptools`, `wheel`) from the final runtime image.
+  * **Multi-Stage Build:** Isolates application dependencies in a virtual environment (`/venv`) and completely strips build tools (`pip`, `setuptools`, `wheel`) from the final runtime image.
   * **Minimal Attack Surface:** Built on Alpine Linux (`python:3.11-alpine`) with all unneeded system site-packages purged.
   * **Least Privilege Execution:** Runs under an unprivileged user account (`nobody`, UID 65534).
 * **Local Orchestration:** Docker Compose support for simplified local development and health checks.
