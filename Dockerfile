@@ -29,6 +29,9 @@ RUN pip uninstall -y setuptools wheel pip || true && \
 # =========================================================
 FROM python:3.11-alpine AS runner
 
+# Patch OS-level vulnerabilities (e.g., krb5-libs) in the final runtime image
+RUN apk update && apk upgrade --no-cache
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
