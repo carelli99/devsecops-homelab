@@ -44,8 +44,8 @@ jobs:
 
       - name: Run Bandit (SAST)
         run: |
-          pip install bandit
-          bandit -r app/ -ll -ii -f txt
+          python -m pip install --no-cache-dir bandit
+          bandit -r app/ -ll -ii
 
       - name: Build Local Docker Image
         run: |
