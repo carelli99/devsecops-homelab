@@ -48,8 +48,7 @@ jobs:
           bandit -r app/ -ll -ii
 
       - name: Build Local Docker Image
-        run: |
-          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+        run: docker build --pull -t "$IMAGE_NAME:$IMAGE_TAG" .
 
       - name: Trivy Container Vulnerability Scan
         uses: aquasecurity/trivy-action@v0.36.0
