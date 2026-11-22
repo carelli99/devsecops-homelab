@@ -38,8 +38,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Wipe default base image system site-packages
-RUN rm -rf /usr/local/lib/python3.11/site-packages/*
+# Wipe default base image site-packages and bundled ensurepip wheels (setuptools, urllib3, msgpack)
+RUN rm -rf /usr/local/lib/python3.*/site-packages/* \
+           /usr/local/lib/python3.*/ensurepip/_bundled/*
 
 # Copy only the hardened, production-only virtual environment
 COPY --from=builder /opt/venv /opt/venv
