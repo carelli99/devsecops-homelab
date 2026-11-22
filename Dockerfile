@@ -1,7 +1,7 @@
 # =========================================================
 # Stage 1: Build & Dependency Isolation
 # =========================================================
-FROM python:3.11-alpine AS builder
+FROM python:3.15-alpine AS builder
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ RUN pip uninstall -y setuptools wheel pip || true && \
 # =========================================================
 # Stage 2: Minimal Production Runtime
 # =========================================================
-FROM python:3.11-alpine AS runner
+FROM python:3.15-alpine AS runner
 
 # Patch OS-level vulnerabilities (e.g., krb5-libs) in the final runtime image
 RUN apk update && apk upgrade --no-cache
